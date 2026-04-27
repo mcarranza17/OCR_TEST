@@ -30,11 +30,6 @@ UPLOAD_TYPES = ["jpg", "jpeg", "png", "heic", "heif", "webp"]
 
 def _public_base_url() -> str:
     forced = os.getenv("PUBLIC_URL")
-    if not forced:
-        try:
-            forced = st.secrets.get("PUBLIC_URL")  # type: ignore[attr-defined]
-        except (FileNotFoundError, KeyError, AttributeError):
-            forced = None
     if forced:
         return str(forced).rstrip("/")
     try:
