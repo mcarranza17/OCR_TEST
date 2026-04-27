@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+.streamlit/secrets.toml
+.models/
+data/db/*
+data/enrolled/*
+data/probes/*
+data/sessions/
+!data/db/.gitkeep
+!data/enrolled/.gitkeep
+!data/probes/.gitkeep

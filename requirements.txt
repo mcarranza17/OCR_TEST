@@ -1,0 +1,13 @@
+streamlit>=1.35.0
+paddleocr>=2.7.0
+paddlepaddle>=2.6.0
+insightface>=0.7.3
+onnxruntime>=1.17.0
+opencv-python>=4.9.0
+numpy>=1.26.0
+pydantic>=2.7.0
+Pillow>=10.0.0
+pillow-heif>=0.16.0
+qrcode[pil]>=7.4
+streamlit-autorefresh>=1.0.1
+urllib3<2
