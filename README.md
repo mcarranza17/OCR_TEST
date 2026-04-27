@@ -1,3 +1,15 @@
+---
+title: Gladiium OCR
+emoji: 🛡
+colorFrom: red
+colorTo: gray
+sdk: streamlit
+sdk_version: 1.35.0
+app_file: app.py
+pinned: false
+python_version: "3.11"
+---
+
 # OCR_TEST
 
 MVP local para verificacion de identidad con DNI de Honduras.
