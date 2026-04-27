@@ -567,10 +567,6 @@ def render_qr_handoff() -> tuple[bytes | None, bytes | None]:
             unsafe_allow_html=True,
         )
         st.code(mobile_url, language="text")
-        st.caption(
-            "Si el celular esta en la misma red WiFi y el navegador no abre la camara, "
-            "exponer en HTTPS via ngrok o Streamlit Cloud."
-        )
         c1, c2 = st.columns(2)
         if c1.button("Generar nuevo QR"):
             st.session_state.pop("qr_sid", None)
