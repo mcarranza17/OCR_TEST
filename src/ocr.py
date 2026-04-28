@@ -27,7 +27,8 @@ class OCRResult:
     lines: list[OCRLine]
 
 
-def run_ocr(image_bytes: bytes, lang: str = "es") -> OCRResult:
+def get_paddle_ocr(lang: str = "es"):
+    """Construct a PaddleOCR instance. Expensive — should be cached upstream."""
     os.environ.setdefault("PADDLE_PDX_CACHE_HOME", str((Path(".models") / "paddlex").resolve()))
 
     try:
@@ -35,19 +36,21 @@ def run_ocr(image_bytes: bytes, lang: str = "es") -> OCRResult:
     except ImportError as exc:
         raise OCRError("PaddleOCR no está instalado. Ejecuta pip install -r requirements.txt") from exc
 
-    image = image_bytes_to_bgr(image_bytes)
-
     # paddleocr 3.x uses `use_textline_orientation`; 2.x uses `use_angle_cls`.
     try:
-        ocr = PaddleOCR(use_textline_orientation=True, lang=lang)
+        return PaddleOCR(use_textline_orientation=True, lang=lang)
     except TypeError:
-        ocr = PaddleOCR(use_angle_cls=True, lang=lang)
+        return PaddleOCR(use_angle_cls=True, lang=lang)
+
+
+def run_ocr_with(ocr_instance, image_bytes: bytes) -> OCRResult:
+    image = image_bytes_to_bgr(image_bytes)
 
     # paddleocr 3.x exposes `.predict()`; 2.x only has `.ocr()`.
-    if hasattr(ocr, "predict"):
-        raw_result = ocr.predict(image)
+    if hasattr(ocr_instance, "predict"):
+        raw_result = ocr_instance.predict(image)
     else:
-        raw_result = ocr.ocr(image)
+        raw_result = ocr_instance.ocr(image)
 
     lines = _extract_lines(raw_result)
     if not lines:
@@ -56,6 +59,10 @@ def run_ocr(image_bytes: bytes, lang: str = "es") -> OCRResult:
     full_text = "\n".join(line.text for line in lines)
     avg_conf = sum(line.confidence for line in lines) / len(lines)
     return OCRResult(full_text=full_text, average_confidence=avg_conf, lines=lines)
+
+
+def run_ocr(image_bytes: bytes, lang: str = "es") -> OCRResult:
+    return run_ocr_with(get_paddle_ocr(lang), image_bytes)
 
 
 def _extract_lines(raw_result) -> list[OCRLine]:
