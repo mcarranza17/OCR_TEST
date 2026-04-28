@@ -789,7 +789,7 @@ def main() -> None:
     st.markdown('<div class="gld-step">Paso <b>01</b> · Modo de captura</div>', unsafe_allow_html=True)
     capture_mode = st.radio(
         "Modo de captura",
-        options=["Camara en vivo", "Desde mi telefono (QR)", "Subir archivo"],
+        options=["Desde mi telefono (QR)", "Subir archivo"],
         horizontal=True,
         label_visibility="collapsed",
     )
@@ -815,27 +815,21 @@ def main() -> None:
     col_doc, col_selfie = st.columns(2, gap="large")
     with col_doc:
         st.markdown('<div class="gld-card"><h3>DNI · frente</h3>', unsafe_allow_html=True)
-        if capture_mode == "Camara en vivo":
-            document_file = st.camera_input(
-                "Encuadra el DNI dentro del marco y captura",
-                key="doc_cam",
-            )
-        else:
-            document_file = st.file_uploader(
-                "Imagen frontal del DNI (JPG, PNG, HEIC, WEBP)",
-                type=UPLOAD_TYPES,
-                key="doc_upl",
-            )
-            if document_file:
-                try:
-                    st.image(
-                        _read_image_bytes(document_file),
-                        caption="DNI cargado",
-                        use_container_width=True,
-                    )
-                except ValueError as exc:
-                    st.error(str(exc))
-                    document_file = None
+        document_file = st.file_uploader(
+            "Imagen frontal del DNI (JPG, PNG, HEIC, WEBP)",
+            type=UPLOAD_TYPES,
+            key="doc_upl",
+        )
+        if document_file:
+            try:
+                st.image(
+                    _read_image_bytes(document_file),
+                    caption="DNI cargado",
+                    use_container_width=True,
+                )
+            except ValueError as exc:
+                st.error(str(exc))
+                document_file = None
         st.markdown(
             '<div class="gld-hint">Buena luz · sin reflejos · 4 esquinas visibles</div></div>',
             unsafe_allow_html=True,
@@ -843,37 +837,28 @@ def main() -> None:
 
     with col_selfie:
         st.markdown('<div class="gld-card"><h3>Selfie</h3>', unsafe_allow_html=True)
-        if capture_mode == "Camara en vivo":
-            selfie_file = st.camera_input(
-                "Mira a camara con rostro centrado",
-                key="selfie_cam",
-            )
-        else:
-            selfie_file = st.file_uploader(
-                "Selfie o foto de la persona (JPG, PNG, HEIC, WEBP)",
-                type=UPLOAD_TYPES,
-                key="selfie_upl",
-            )
-            if selfie_file:
-                try:
-                    st.image(
-                        _read_image_bytes(selfie_file),
-                        caption="Selfie cargada",
-                        use_container_width=True,
-                    )
-                except ValueError as exc:
-                    st.error(str(exc))
-                    selfie_file = None
+        selfie_file = st.file_uploader(
+            "Selfie o foto de la persona (JPG, PNG, HEIC, WEBP)",
+            type=UPLOAD_TYPES,
+            key="selfie_upl",
+        )
+        if selfie_file:
+            try:
+                st.image(
+                    _read_image_bytes(selfie_file),
+                    caption="Selfie cargada",
+                    use_container_width=True,
+                )
+            except ValueError as exc:
+                st.error(str(exc))
+                selfie_file = None
         st.markdown(
             '<div class="gld-hint">Sin gorra ni lentes · rostro centrado y enfocado</div></div>',
             unsafe_allow_html=True,
         )
 
     if not document_file or not selfie_file:
-        if capture_mode == "Camara en vivo":
-            st.info("Captura el DNI y la selfie con la camara para iniciar la verificacion.")
-        else:
-            st.info("Sube una imagen del DNI y una selfie para iniciar la verificacion.")
+        st.info("Sube una imagen del DNI y una selfie para iniciar la verificacion.")
         return
 
     st.markdown('<div class="gld-step">Paso <b>03</b> · Verificacion</div>', unsafe_allow_html=True)
