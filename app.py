@@ -139,8 +139,9 @@ header[data-testid="stHeader"] {{ background: transparent; }}
 #MainMenu, footer {{ visibility: hidden; }}
 
 .block-container {{
-  padding-top: 1.2rem;
-  max-width: 1180px;
+  padding-top: 0.6rem;
+  padding-bottom: 2rem;
+  max-width: 1080px;
 }}
 
 /* Brand bar */
@@ -148,43 +149,44 @@ header[data-testid="stHeader"] {{ background: transparent; }}
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 4px 18px 4px;
+  padding: 2px 0 12px 0;
   border-bottom: 1px solid var(--border);
-  margin-bottom: 28px;
-  gap: 16px;
+  margin-bottom: 18px;
+  gap: 12px;
 }}
 .gld-logo-wrap {{
   background: var(--logo-bg);
-  padding: {"8px 14px" if dark else "0"};
-  border-radius: 10px;
+  padding: {"6px 10px" if dark else "0"};
+  border-radius: 8px;
   display: inline-flex;
   align-items: center;
 }}
 .gld-logo-wrap img {{
-  height: 48px;
+  height: 32px;
   width: auto;
   display: block;
 }}
 .gld-pill {{
-  font-size: 11px;
-  letter-spacing: 0.22em;
+  font-size: 10px;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--accent);
   border: 1px solid var(--border-strong);
-  padding: 6px 12px;
+  padding: 4px 10px;
   border-radius: 999px;
   background: var(--accent-soft);
   font-weight: 600;
 }}
 
 /* Hero */
+.gld-hero {{ margin-bottom: 4px; }}
 .gld-hero h1 {{
   font-family: 'Poppins', sans-serif !important;
   font-weight: 700;
-  letter-spacing: -0.01em;
-  font-size: 38px;
-  line-height: 1.1;
-  margin: 8px 0 6px 0;
+  letter-spacing: -0.015em;
+  font-size: 24px;
+  line-height: 1.15;
+  margin: 2px 0 2px 0;
   color: var(--text);
 }}
 .gld-hero h1 em {{
@@ -194,7 +196,7 @@ header[data-testid="stHeader"] {{ background: transparent; }}
 .gld-hero p {{
   color: var(--muted);
   margin: 0;
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 400;
 }}
 
@@ -202,16 +204,16 @@ header[data-testid="stHeader"] {{ background: transparent; }}
 .gld-step {{
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 6px 12px;
+  gap: 8px;
+  padding: 4px 10px;
   border: 1px solid var(--border);
   border-radius: 999px;
-  font-size: 11px;
-  letter-spacing: 0.2em;
+  font-size: 10px;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--text);
-  background: var(--surface);
-  margin: 26px 0 12px 0;
+  color: var(--muted);
+  background: transparent;
+  margin: 18px 0 8px 0;
   font-weight: 600;
 }}
 .gld-step b {{
@@ -223,25 +225,28 @@ header[data-testid="stHeader"] {{ background: transparent; }}
 .gld-card {{
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 18px;
-  box-shadow: var(--shadow);
+  border-radius: 10px;
+  padding: 12px 14px;
+  box-shadow: none;
 }}
 .gld-card h3 {{
   font-family: 'Poppins', sans-serif;
   font-weight: 600;
   letter-spacing: 0;
   color: var(--text);
-  margin: 0 0 12px 0;
-  font-size: 16px;
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }}
 .gld-card .gld-hint {{
   color: var(--muted);
-  font-size: 12px;
-  margin-top: 12px;
-  border-top: 1px dashed var(--border);
-  padding-top: 10px;
+  font-size: 11px;
+  margin-top: 8px;
+  border-top: 1px solid var(--border);
+  padding-top: 6px;
   font-weight: 400;
+  letter-spacing: 0.02em;
 }}
 
 /* Camera + uploader */
@@ -269,29 +274,29 @@ header[data-testid="stHeader"] {{ background: transparent; }}
   background: var(--accent);
   color: #FFFFFF;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   font-weight: 600;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  padding: 12px 26px;
-  box-shadow: 0 6px 18px rgba(122,20,20,0.25);
-  transition: transform .08s ease, box-shadow .2s ease, filter .15s ease;
+  font-size: 12px;
+  padding: 9px 18px;
+  box-shadow: none;
+  transition: filter .15s ease;
   font-family: 'Poppins', sans-serif !important;
 }}
 .stButton > button:hover {{
-  transform: translateY(-1px);
-  filter: brightness(1.06);
-  box-shadow: 0 10px 26px rgba(122,20,20,0.35);
+  filter: brightness(1.08);
 }}
 
 /* Radio */
 [role="radiogroup"] label {{
   border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 6px 14px;
-  margin-right: 8px;
+  border-radius: 8px;
+  padding: 5px 11px;
+  margin-right: 6px;
   background: var(--surface);
   color: var(--text) !important;
+  font-size: 12px;
 }}
 [role="radiogroup"] label[data-checked="true"] {{
   border-color: var(--accent);
@@ -306,18 +311,18 @@ header[data-testid="stHeader"] {{ background: transparent; }}
 
 /* Decision banners */
 .gld-banner {{
-  border-radius: 14px;
-  padding: 18px 22px;
-  margin: 6px 0 18px 0;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin: 4px 0 14px 0;
   border: 1px solid var(--border);
-  display: flex; align-items: center; gap: 14px;
-  font-weight: 600; letter-spacing: 0.14em;
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 600; letter-spacing: 0.12em;
   text-transform: uppercase;
+  font-size: 12px;
   background: var(--surface);
 }}
 .gld-banner .dot {{
-  width: 10px; height: 10px; border-radius: 50%;
-  box-shadow: 0 0 12px currentColor;
+  width: 8px; height: 8px; border-radius: 50%;
 }}
 .gld-verified  {{ color: var(--ok);   border-color: color-mix(in srgb, var(--ok) 35%, transparent); }}
 .gld-review    {{ color: var(--warn); border-color: var(--border-strong); }}
@@ -447,7 +452,7 @@ def render_brand_header() -> None:
         </div>
         <div class="gld-hero">
           <h1>Verificacion de <em>Identidad</em></h1>
-          <p>Captura en vivo del documento y del rostro. OCR documental y comparacion biometrica en un solo flujo.</p>
+          <p>OCR documental y comparacion biometrica del DNI con selfie.</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -715,7 +720,7 @@ def main() -> None:
     settings.configure_runtime()
 
     st.set_page_config(
-        page_title="Gladiium · Identity Verification",
+        page_title="GLADiiUM Identity Verification",
         page_icon=str(LOGO_PATH) if LOGO_PATH.exists() else None,
         layout="wide",
     )
@@ -809,7 +814,7 @@ def main() -> None:
 
     col_doc, col_selfie = st.columns(2, gap="large")
     with col_doc:
-        st.markdown('<div class="gld-card"><h3>Documento · DNI (frente)</h3>', unsafe_allow_html=True)
+        st.markdown('<div class="gld-card"><h3>DNI · frente</h3>', unsafe_allow_html=True)
         if capture_mode == "Camara en vivo":
             document_file = st.camera_input(
                 "Encuadra el DNI dentro del marco y captura",
@@ -832,12 +837,12 @@ def main() -> None:
                     st.error(str(exc))
                     document_file = None
         st.markdown(
-            '<div class="gld-hint">Buena luz. Sin reflejos. Las cuatro esquinas visibles.</div></div>',
+            '<div class="gld-hint">Buena luz · sin reflejos · 4 esquinas visibles</div></div>',
             unsafe_allow_html=True,
         )
 
     with col_selfie:
-        st.markdown('<div class="gld-card"><h3>Persona · Selfie</h3>', unsafe_allow_html=True)
+        st.markdown('<div class="gld-card"><h3>Selfie</h3>', unsafe_allow_html=True)
         if capture_mode == "Camara en vivo":
             selfie_file = st.camera_input(
                 "Mira a camara con rostro centrado",
@@ -860,7 +865,7 @@ def main() -> None:
                     st.error(str(exc))
                     selfie_file = None
         st.markdown(
-            '<div class="gld-hint">Sin gorra ni lentes oscuros. Rostro completo y enfocado.</div></div>',
+            '<div class="gld-hint">Sin gorra ni lentes · rostro centrado y enfocado</div></div>',
             unsafe_allow_html=True,
         )
 
