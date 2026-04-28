@@ -12,7 +12,7 @@ import streamlit as st
 from src.dni_parser import parse_honduras_dni
 from src.face_matcher import FaceMatcher, FaceMatcherError
 from src.image_io import image_bytes_to_bgr, normalize_upright_jpeg
-from src.ocr import OCRError, run_ocr
+from src.ocr import OCRError, get_paddle_ocr, run_ocr_with
 from src.session_store import (
     cleanup_old,
     create_session,
@@ -358,6 +358,44 @@ header[data-testid="stHeader"] {{ background: transparent; }}
   font-weight: 600;
 }}
 
+/* Live overlay over st.camera_input video — only while video is active.
+   Uses :has() (supported in iOS Safari 15.4+, Chrome 105+, Firefox 121+). */
+[data-testid="stCameraInput"]:has(video) {{
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+}}
+
+/* DNI step → wide rectangle guide */
+[data-testid="stVerticalBlock"]:has(.gld-cam-mark-doc) [data-testid="stCameraInput"]:has(video)::after {{
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 92%;
+  aspect-ratio: 1.585;
+  border: 2px dashed rgba(255, 255, 255, 0.92);
+  border-radius: 8px;
+  pointer-events: none;
+  z-index: 10;
+  box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.40);
+}}
+
+/* Selfie step → oval face guide */
+[data-testid="stVerticalBlock"]:has(.gld-cam-mark-self) [data-testid="stCameraInput"]:has(video)::after {{
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 56%;
+  aspect-ratio: 0.78;
+  border: 3px dashed rgba(255, 255, 255, 0.95);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10;
+  box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.42);
+}}
+
 /* Capture card */
 .gld-card {{
   background: var(--surface);
@@ -664,7 +702,7 @@ def render_mobile_capture(sid: str) -> None:
         _render_step_header(
             1,
             "Foto del DNI",
-            "Sostén el celular vertical y encuadra el DNI dentro del marco.",
+            "Gira el celular horizontal ↔ y encuadra el DNI completo dentro del marco.",
         )
         _render_doc_frame()
         _render_checklist([
@@ -673,6 +711,7 @@ def render_mobile_capture(sid: str) -> None:
             "Las 4 esquinas dentro del marco",
             "Texto y foto se leen claramente",
         ])
+        st.markdown('<span class="gld-cam-mark-doc"></span>', unsafe_allow_html=True)
         photo = st.camera_input("Tomar foto del DNI", key="m_doc_cam")
         with st.expander("O subir desde galería"):
             upload = st.file_uploader(
@@ -705,6 +744,7 @@ def render_mobile_capture(sid: str) -> None:
             "Rostro completo, ojos abiertos",
             "Expresión neutral, mira a la cámara",
         ])
+        st.markdown('<span class="gld-cam-mark-self"></span>', unsafe_allow_html=True)
         photo = st.camera_input("Tomar selfie", key="m_self_cam")
         with st.expander("O subir desde galería"):
             upload = st.file_uploader(
@@ -846,6 +886,17 @@ def decide(ocr_valid: bool, face_decision: str | None) -> str:
     return "rejected"
 
 
+@st.cache_resource(show_spinner=False)
+def _cached_paddle_ocr(lang: str):
+    return get_paddle_ocr(lang)
+
+
+@st.cache_resource(show_spinner=False)
+def _cached_face_matcher(model_name: str, model_root: str) -> FaceMatcher:
+    # Built once per process; thresholds are mutated per call below.
+    return FaceMatcher(model_name=model_name, model_root=model_root)
+
+
 def _run_pipeline(
     settings: Settings,
     doc_bytes: bytes,
@@ -853,30 +904,46 @@ def _run_pipeline(
     face_match_threshold: float,
     face_review_threshold: float,
 ) -> None:
-    with st.spinner("Ejecutando OCR..."):
+    progress = st.progress(0, text="Iniciando verificación…")
+
+    try:
+        progress.progress(10, text="Cargando modelos…")
+        ocr_instance = _cached_paddle_ocr(settings.ocr_lang)
+        matcher = _cached_face_matcher(settings.face_model_name, settings.insightface_root)
+        matcher.match_threshold = face_match_threshold
+        matcher.review_threshold = face_review_threshold
+
+        progress.progress(30, text="Leyendo texto del DNI…")
         try:
-            ocr_result = run_ocr(doc_bytes, lang=settings.ocr_lang)
+            ocr_result = run_ocr_with(ocr_instance, doc_bytes)
         except OCRError as exc:
+            progress.empty()
             st.error(str(exc))
             return
 
-    parsed = parse_honduras_dni(ocr_result.full_text, ocr_result.average_confidence)
+        progress.progress(55, text="Extrayendo campos…")
+        parsed = parse_honduras_dni(ocr_result.full_text, ocr_result.average_confidence)
 
-    with st.spinner("Comparando rostros..."):
+        progress.progress(70, text="Detectando rostros…")
         try:
-            matcher = FaceMatcher(
-                model_name=settings.face_model_name,
-                match_threshold=face_match_threshold,
-                review_threshold=face_review_threshold,
-                model_root=settings.insightface_root,
-            )
-            face_result = matcher.compare(
-                image_bytes_to_bgr(doc_bytes),
-                image_bytes_to_bgr(selfie_bytes),
-            )
-        except (FaceMatcherError, ValueError) as exc:
+            doc_bgr = image_bytes_to_bgr(doc_bytes)
+            selfie_bgr = image_bytes_to_bgr(selfie_bytes)
+        except ValueError as exc:
+            progress.empty()
             st.error(str(exc))
             return
+
+        progress.progress(85, text="Comparando biometría…")
+        try:
+            face_result = matcher.compare(doc_bgr, selfie_bgr)
+        except (FaceMatcherError, ValueError) as exc:
+            progress.empty()
+            st.error(str(exc))
+            return
+
+        progress.progress(100, text="Listo")
+    finally:
+        progress.empty()
 
     final_decision = decide(parsed.is_valid_for_demo, face_result.decision)
     render_decision(final_decision)
@@ -977,7 +1044,7 @@ def main() -> None:
     st.markdown('<div class="gld-step">Paso <b>01</b> · Modo de captura</div>', unsafe_allow_html=True)
     capture_mode = st.radio(
         "Modo de captura",
-        options=["Desde mi teléfono (QR)", "Subir archivo"],
+        options=["Subir archivo"],
         horizontal=True,
         label_visibility="collapsed",
     )
