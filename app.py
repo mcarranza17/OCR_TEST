@@ -451,8 +451,8 @@ def render_brand_header() -> None:
           <div class="gld-pill">Identity Verification · Honduras DNI</div>
         </div>
         <div class="gld-hero">
-          <h1>Verificacion de <em>Identidad</em></h1>
-          <p>OCR documental y comparacion biometrica del DNI con selfie.</p>
+          <h1>Verificación de <em>Identidad</em></h1>
+          <p>OCR documental y comparación biométrica del DNI con selfie.</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -462,11 +462,11 @@ def render_brand_header() -> None:
 def render_mobile_capture(sid: str) -> None:
     state = read_state(sid)
     if state is None:
-        st.error("Sesion invalida o expirada. Pide al desktop que genere un QR nuevo.")
+        st.error("Sesión inválida o expirada. Pide al desktop que genere un QR nuevo.")
         return
 
     st.markdown(
-        '<div class="gld-step">Captura desde tu telefono</div>',
+        '<div class="gld-step">Captura desde tu teléfono</div>',
         unsafe_allow_html=True,
     )
 
@@ -485,7 +485,7 @@ def render_mobile_capture(sid: str) -> None:
         )
         photo = st.camera_input("Toma una foto del DNI", key="m_doc_cam")
         upload = st.file_uploader(
-            "O sube desde galeria",
+            "O sube desde galería",
             type=UPLOAD_TYPES,
             key="m_doc_upl",
         )
@@ -504,10 +504,10 @@ def render_mobile_capture(sid: str) -> None:
 
     if not selfie_ready:
         st.markdown('<div class="gld-card"><h3>Paso 2 de 2 · Selfie</h3>', unsafe_allow_html=True)
-        st.caption("Mira a camara con rostro centrado. Sin gorra, sin lentes oscuros, buena luz frontal.")
+        st.caption("Mira a cámara con rostro centrado. Sin gorra, sin lentes oscuros, buena luz frontal.")
         photo = st.camera_input("Toma una selfie", key="m_self_cam")
         upload = st.file_uploader(
-            "O sube desde galeria",
+            "O sube desde galería",
             type=UPLOAD_TYPES,
             key="m_self_upl",
         )
@@ -563,12 +563,12 @@ def render_qr_handoff() -> tuple[bytes | None, bytes | None]:
     with qr_col:
         st.image(_make_qr_png(mobile_url), width=240)
     with info_col:
-        st.markdown('<div class="gld-card"><h3>Captura desde tu telefono</h3>', unsafe_allow_html=True)
+        st.markdown('<div class="gld-card"><h3>Captura desde tu teléfono</h3>', unsafe_allow_html=True)
         st.markdown(
             "1. Escanea el QR con la camara del telefono.<br>"
             "2. Toma la foto del DNI con buena luz.<br>"
             "3. Toma la selfie centrando el rostro.<br>"
-            "4. Esta pagina se actualiza sola.",
+            "4. Esta página se actualiza sola.",
             unsafe_allow_html=True,
         )
         st.code(mobile_url, language="text")
@@ -594,7 +594,7 @@ def render_qr_handoff() -> tuple[bytes | None, bytes | None]:
             if doc_bytes:
                 st.image(doc_bytes, use_column_width=True)
         else:
-            st.caption("Pendiente — captura desde el telefono.")
+            st.caption("Pendiente — captura desde el teléfono.")
         st.markdown("</div>", unsafe_allow_html=True)
     with status_col2:
         st.markdown('<div class="gld-card"><h3>Selfie</h3>', unsafe_allow_html=True)
@@ -603,7 +603,7 @@ def render_qr_handoff() -> tuple[bytes | None, bytes | None]:
             if selfie_bytes:
                 st.image(selfie_bytes, use_column_width=True)
         else:
-            st.caption("Pendiente — captura desde el telefono.")
+            st.caption("Pendiente — captura desde el teléfono.")
         st.markdown("</div>", unsafe_allow_html=True)
 
     if not (doc_ready and selfie_ready):
@@ -612,7 +612,7 @@ def render_qr_handoff() -> tuple[bytes | None, bytes | None]:
 
             st_autorefresh(interval=2000, key=f"qr_poll_{sid}")
         except ImportError:
-            st.caption("streamlit-autorefresh no esta instalado; refresca la pagina manualmente.")
+            st.caption("streamlit-autorefresh no está instalado; refresca la página manualmente.")
         return None, None
 
     return read_image(sid, "document"), read_image(sid, "selfie")
@@ -621,7 +621,7 @@ def render_qr_handoff() -> tuple[bytes | None, bytes | None]:
 def render_decision(decision: str) -> None:
     mapping = {
         "verified": ("gld-verified", "Identidad verificada"),
-        "manual_review": ("gld-review", "Requiere revision manual"),
+        "manual_review": ("gld-review", "Requiere revisión manual"),
         "rejected": ("gld-rejected", "Identidad rechazada"),
     }
     cls, label = mapping.get(decision, ("gld-review", decision))
@@ -698,13 +698,13 @@ def _run_pipeline(
         st.markdown("</div>", unsafe_allow_html=True)
 
     with face_col:
-        st.markdown('<div class="gld-card"><h3>Resultado biometrico</h3>', unsafe_allow_html=True)
+        st.markdown('<div class="gld-card"><h3>Resultado biométrico</h3>', unsafe_allow_html=True)
         m1, m2, m3 = st.columns(3)
         m1.metric("Similitud", f"{face_result.similarity:.3f}")
         m2.metric("Rostro DNI", f"{face_result.document_face_ratio*100:.1f}%")
         m3.metric("Rostro selfie", f"{face_result.selfie_face_ratio*100:.1f}%")
         if face_result.document_face_ratio < 0.01:
-            st.warning("Rostro del DNI muy pequeno. Acerca el documento o usa mejor luz.")
+            st.warning("Rostro del DNI muy pequeño. Acerca el documento o usa mejor luz.")
         st.json(face_result.to_dict())
         st.markdown("</div>", unsafe_allow_html=True)
 
@@ -759,37 +759,37 @@ def main() -> None:
             max_value=0.90,
             value=float(settings.face_match_threshold),
             step=0.01,
-            help="Por encima de este valor: match. Recomendado 0.36-0.42 para DNI vs selfie.",
+            help="Por encima de este valor: match. Recomendado 0.36–0.42 para DNI vs selfie.",
         )
         face_review_threshold = st.slider(
-            "Umbral revision facial",
+            "Umbral revisión facial",
             min_value=0.10,
             max_value=0.90,
             value=float(settings.face_review_threshold),
             step=0.01,
-            help="Entre revision y match: requiere revision manual. Recomendado 0.22-0.28.",
+            help="Entre revisión y match: requiere revisión manual. Recomendado 0.22–0.28.",
         )
         st.caption(
             "Defaults sugeridos para DNI vs selfie: match 0.38, revision 0.25. "
-            "Cross-domain (foto impresa pequena vs selfie HD) baja el rango tipico."
+            "Cross-domain (foto impresa pequeña vs selfie HD) baja el rango típico."
         )
 
     st.markdown('<div class="gld-step">Paso <b>01</b> · Modo de captura</div>', unsafe_allow_html=True)
     capture_mode = st.radio(
         "Modo de captura",
-        options=["Desde mi telefono (QR)", "Subir archivo"],
+        options=["Desde mi teléfono (QR)", "Subir archivo"],
         horizontal=True,
         label_visibility="collapsed",
     )
 
     st.markdown('<div class="gld-step">Paso <b>02</b> · Documento y rostro</div>', unsafe_allow_html=True)
 
-    if capture_mode == "Desde mi telefono (QR)":
+    if capture_mode == "Desde mi teléfono (QR)":
         qr_doc_bytes, qr_selfie_bytes = render_qr_handoff()
         if not (qr_doc_bytes and qr_selfie_bytes):
             return
-        st.markdown('<div class="gld-step">Paso <b>03</b> · Verificacion</div>', unsafe_allow_html=True)
-        if not st.button("Iniciar verificacion", type="primary", key="qr_run"):
+        st.markdown('<div class="gld-step">Paso <b>03</b> · Verificación</div>', unsafe_allow_html=True)
+        if not st.button("Iniciar verificación", type="primary", key="qr_run"):
             return
         _run_pipeline(
             settings=settings,
@@ -846,11 +846,11 @@ def main() -> None:
         )
 
     if not document_file or not selfie_file:
-        st.info("Sube una imagen del DNI y una selfie para iniciar la verificacion.")
+        st.info("Sube una imagen del DNI y una selfie para iniciar la verificación.")
         return
 
-    st.markdown('<div class="gld-step">Paso <b>03</b> · Verificacion</div>', unsafe_allow_html=True)
-    if not st.button("Iniciar verificacion", type="primary"):
+    st.markdown('<div class="gld-step">Paso <b>03</b> · Verificación</div>', unsafe_allow_html=True)
+    if not st.button("Iniciar verificación", type="primary"):
         return
 
     try:

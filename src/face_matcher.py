@@ -36,7 +36,7 @@ class FaceMatcher:
         model_root: str = ".models/insightface",
     ) -> None:
         if review_threshold > match_threshold:
-            raise FaceMatcherError("El umbral de revision no puede ser mayor al umbral de match.")
+            raise FaceMatcherError("El umbral de revisión no puede ser mayor al umbral de match.")
 
         self.match_threshold = match_threshold
         self.review_threshold = review_threshold
@@ -44,7 +44,7 @@ class FaceMatcher:
         try:
             from insightface.app import FaceAnalysis
         except ImportError as exc:
-            raise FaceMatcherError("InsightFace no esta instalado. Ejecuta pip install -r requirements.txt") from exc
+            raise FaceMatcherError("InsightFace no está instalado. Ejecuta pip install -r requirements.txt") from exc
 
         try:
             self._app = FaceAnalysis(
@@ -96,8 +96,8 @@ class FaceMatcher:
                     return best, sc, original_shape
 
         raise FaceMatcherError(
-            f"No se detecto rostro en la imagen de {source_name}. "
-            "Mejora iluminacion, enfoque y distancia."
+            f"No se detectó rostro en la imagen de {source_name}. "
+            "Mejora iluminación, enfoque y distancia."
         )
 
     def _ensure_det_size(self, size: tuple[int, int]) -> None:
@@ -129,14 +129,14 @@ def _embedding(face) -> np.ndarray:
         return np.asarray(face.normed_embedding, dtype=np.float32)
     if hasattr(face, "embedding") and face.embedding is not None:
         return np.asarray(face.embedding, dtype=np.float32)
-    raise FaceMatcherError("El modelo no devolvio embedding facial.")
+    raise FaceMatcherError("El modelo no devolvió embedding facial.")
 
 
 def _cosine_similarity(left: np.ndarray, right: np.ndarray) -> float:
     left_norm = np.linalg.norm(left)
     right_norm = np.linalg.norm(right)
     if left_norm == 0 or right_norm == 0:
-        raise FaceMatcherError("Embedding facial invalido.")
+        raise FaceMatcherError("Embedding facial inválido.")
     return float(np.dot(left, right) / (left_norm * right_norm))
 
 

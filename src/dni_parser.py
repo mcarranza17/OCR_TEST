@@ -5,7 +5,7 @@ import unicodedata
 from dataclasses import asdict, dataclass
 from datetime import datetime
 
-from .honduras_places import match_place
+from src.honduras_places import match_place
 
 
 ID_RE = re.compile(r"(?<!\d)(\d{4})[\s-]?(\d{4})[\s-]?(\d{5})(?!\d)")
@@ -273,14 +273,14 @@ def _validate(
     warnings: list[str] = []
 
     if not document_number:
-        warnings.append("No se encontro numero de identidad hondureno de 13 digitos.")
+        warnings.append("No se encontró número de identidad hondureño de 13 dígitos.")
 
     current_year = datetime.now().year
     if birth_year is not None and not (1900 <= birth_year <= current_year):
-        warnings.append("El ano dentro del numero de identidad no parece valido.")
+        warnings.append("El año dentro del número de identidad no parece válido.")
 
     if birth_date and birth_year and not birth_date.endswith(str(birth_year)):
-        warnings.append("La fecha de nacimiento no coincide con el ano del numero de identidad.")
+        warnings.append("La fecha de nacimiento no coincide con el año del número de identidad.")
 
     if not names:
         warnings.append("No se pudieron extraer nombres.")

@@ -50,7 +50,7 @@ class HondurasDNIParserTest(unittest.TestCase):
         parsed = parse_honduras_dni(raw_text)
 
         self.assertIn(
-            "La fecha de nacimiento no coincide con el ano del numero de identidad.",
+            "La fecha de nacimiento no coincide con el año del número de identidad.",
             parsed.warnings,
         )
 

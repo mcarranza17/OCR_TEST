@@ -33,7 +33,7 @@ def run_ocr(image_bytes: bytes, lang: str = "es") -> OCRResult:
     try:
         from paddleocr import PaddleOCR
     except ImportError as exc:
-        raise OCRError("PaddleOCR no esta instalado. Ejecuta pip install -r requirements.txt") from exc
+        raise OCRError("PaddleOCR no está instalado. Ejecuta pip install -r requirements.txt") from exc
 
     image = image_bytes_to_bgr(image_bytes)
     ocr = PaddleOCR(use_textline_orientation=True, lang=lang)
@@ -41,7 +41,7 @@ def run_ocr(image_bytes: bytes, lang: str = "es") -> OCRResult:
 
     lines = _extract_lines(raw_result)
     if not lines:
-        raise OCRError("No se detecto texto en el documento.")
+        raise OCRError("No se detectó texto en el documento.")
 
     full_text = "\n".join(line.text for line in lines)
     avg_conf = sum(line.confidence for line in lines) / len(lines)

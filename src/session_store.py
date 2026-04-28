@@ -19,7 +19,7 @@ def _is_valid_sid(sid: str) -> bool:
 
 def session_dir(sid: str) -> Path:
     if not _is_valid_sid(sid):
-        raise ValueError("session id invalido")
+        raise ValueError("session id inválido")
     return SESSIONS_DIR / sid
 
 
@@ -29,7 +29,7 @@ def state_path(sid: str) -> Path:
 
 def image_path(sid: str, kind: str) -> Path:
     if kind not in ("document", "selfie"):
-        raise ValueError(f"kind invalido: {kind}")
+        raise ValueError(f"kind inválido: {kind}")
     return session_dir(sid) / f"{kind}.jpg"
 
 

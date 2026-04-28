@@ -25,7 +25,7 @@ def image_bytes_to_bgr(image_bytes: bytes) -> np.ndarray:
     try:
         import cv2
     except ImportError as exc:
-        raise ValueError("opencv-python no esta instalado. Ejecuta pip install -r requirements.txt") from exc
+        raise ValueError("opencv-python no está instalado. Ejecuta pip install -r requirements.txt") from exc
 
     data = np.frombuffer(image_bytes, dtype=np.uint8)
     image = cv2.imdecode(data, cv2.IMREAD_COLOR)
