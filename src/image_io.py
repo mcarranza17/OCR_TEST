@@ -22,35 +22,67 @@ def _register_heif_once() -> None:
 
 
 def image_bytes_to_bgr(image_bytes: bytes) -> np.ndarray:
+    """Decode any supported image format to a BGR numpy array.
+
+    Always applies EXIF orientation, so iPhone photos saved sideways with a
+    rotation tag end up upright. Falls back to OpenCV only if Pillow is not
+    available.
+    """
     try:
         import cv2
     except ImportError as exc:
         raise ValueError("opencv-python no está instalado. Ejecuta pip install -r requirements.txt") from exc
 
-    data = np.frombuffer(image_bytes, dtype=np.uint8)
-    image = cv2.imdecode(data, cv2.IMREAD_COLOR)
-    if image is not None:
-        return image
-
-    # Fallback to Pillow (supports HEIC/HEIF when pillow-heif is installed,
-    # plus exotic formats OpenCV may not handle).
     _register_heif_once()
     try:
         from PIL import Image, ImageOps
-    except ImportError as exc:
-        raise ValueError(
-            "No se pudo decodificar la imagen. Instala Pillow y pillow-heif "
-            "(pip install -r requirements.txt) o usa JPG/PNG."
-        ) from exc
+    except ImportError:
+        data = np.frombuffer(image_bytes, dtype=np.uint8)
+        image = cv2.imdecode(data, cv2.IMREAD_COLOR)
+        if image is None:
+            raise ValueError(
+                "No se pudo decodificar la imagen. Instala Pillow y pillow-heif "
+                "(pip install -r requirements.txt) o usa JPG/PNG."
+            )
+        return image
 
     try:
         with Image.open(io.BytesIO(image_bytes)) as img:
             img = ImageOps.exif_transpose(img)
             rgb = img.convert("RGB")
             arr = np.asarray(rgb, dtype=np.uint8)
-    except Exception as exc:  # noqa: BLE001 - any decode failure surfaces as ValueError.
-        raise ValueError(
-            "No se pudo decodificar la imagen. Formato no soportado o archivo corrupto."
-        ) from exc
+    except Exception:
+        # Last resort: cv2 without EXIF awareness.
+        data = np.frombuffer(image_bytes, dtype=np.uint8)
+        image = cv2.imdecode(data, cv2.IMREAD_COLOR)
+        if image is None:
+            raise ValueError(
+                "No se pudo decodificar la imagen. Formato no soportado o archivo corrupto."
+            )
+        return image
 
     return cv2.cvtColor(arr, cv2.COLOR_RGB2BGR)
+
+
+def normalize_upright_jpeg(image_bytes: bytes, quality: int = 92) -> bytes:
+    """Re-encode any input as upright JPEG with EXIF rotation already applied.
+
+    Use this on uploaded files before storing or previewing, so the bytes
+    saved on disk and shown in `st.image` are consistent with what the
+    pipeline (`image_bytes_to_bgr`) sees.
+    """
+    _register_heif_once()
+    try:
+        from PIL import Image, ImageOps
+    except ImportError:
+        return image_bytes
+
+    try:
+        with Image.open(io.BytesIO(image_bytes)) as img:
+            img = ImageOps.exif_transpose(img)
+            rgb = img.convert("RGB")
+            buf = io.BytesIO()
+            rgb.save(buf, format="JPEG", quality=quality, optimize=True)
+            return buf.getvalue()
+    except Exception:  # noqa: BLE001 - if decode fails, return original bytes.
+        return image_bytes

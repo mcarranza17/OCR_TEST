@@ -11,7 +11,7 @@ import streamlit as st
 
 from src.dni_parser import parse_honduras_dni
 from src.face_matcher import FaceMatcher, FaceMatcherError
-from src.image_io import image_bytes_to_bgr
+from src.image_io import image_bytes_to_bgr, normalize_upright_jpeg
 from src.ocr import OCRError, run_ocr
 from src.session_store import (
     cleanup_old,
@@ -56,23 +56,14 @@ def _make_qr_png(url: str) -> bytes:
 
 
 def _read_image_bytes(uploaded) -> bytes:
-    """Return JPEG-normalized bytes from an uploaded file or camera capture.
+    """Return upright JPEG-normalized bytes from an upload or camera capture.
 
-    HEIC/HEIF (iPhone) uploads are decoded via Pillow + pillow-heif and
-    re-encoded as JPEG so downstream OCR, face matcher and st.image all
-    consume the same format.
+    Always applies EXIF orientation and re-encodes as JPEG. Fixes:
+    - iPhone uploads stored sideways with a rotation tag.
+    - HEIC/HEIF inputs (iOS default).
+    - Inconsistencies between st.image preview and downstream OCR/face matcher.
     """
-    raw = uploaded.getvalue()
-    name = (getattr(uploaded, "name", "") or "").lower()
-    if name.endswith((".heic", ".heif")):
-        import cv2
-
-        bgr = image_bytes_to_bgr(raw)
-        ok, buf = cv2.imencode(".jpg", bgr, [cv2.IMWRITE_JPEG_QUALITY, 92])
-        if not ok:
-            raise ValueError("No se pudo convertir HEIC a JPEG.")
-        return buf.tobytes()
-    return raw
+    return normalize_upright_jpeg(uploaded.getvalue())
 
 
 LIGHT_VARS = {
@@ -673,7 +664,7 @@ def render_mobile_capture(sid: str) -> None:
         _render_step_header(
             1,
             "Foto del DNI",
-            "Sostén el celular horizontal y llena el cuadro con el documento.",
+            "Sostén el celular vertical y encuadra el DNI dentro del marco.",
         )
         _render_doc_frame()
         _render_checklist([
@@ -705,7 +696,7 @@ def render_mobile_capture(sid: str) -> None:
         _render_step_header(
             2,
             "Selfie de tu rostro",
-            "Mira directo a la cámara y centra tu cara en el cuadro.",
+            "Sostén el celular vertical y centra tu rostro en el círculo.",
         )
         _render_face_frame()
         _render_checklist([
