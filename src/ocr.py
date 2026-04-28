@@ -36,8 +36,18 @@ def run_ocr(image_bytes: bytes, lang: str = "es") -> OCRResult:
         raise OCRError("PaddleOCR no está instalado. Ejecuta pip install -r requirements.txt") from exc
 
     image = image_bytes_to_bgr(image_bytes)
-    ocr = PaddleOCR(use_textline_orientation=True, lang=lang)
-    raw_result = ocr.predict(image)
+
+    # paddleocr 3.x uses `use_textline_orientation`; 2.x uses `use_angle_cls`.
+    try:
+        ocr = PaddleOCR(use_textline_orientation=True, lang=lang)
+    except TypeError:
+        ocr = PaddleOCR(use_angle_cls=True, lang=lang)
+
+    # paddleocr 3.x exposes `.predict()`; 2.x only has `.ocr()`.
+    if hasattr(ocr, "predict"):
+        raw_result = ocr.predict(image)
+    else:
+        raw_result = ocr.ocr(image)
 
     lines = _extract_lines(raw_result)
     if not lines:

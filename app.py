@@ -221,6 +221,152 @@ header[data-testid="stHeader"] {{ background: transparent; }}
   font-weight: 700;
 }}
 
+/* Mobile step header */
+.gld-mstep {{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0 12px;
+}}
+.gld-mstep-num {{
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #FFFFFF;
+  display: grid; place-items: center;
+  font-weight: 700; font-size: 13px;
+  flex-shrink: 0;
+}}
+.gld-mstep h3 {{
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text);
+}}
+.gld-mstep .gld-mstep-sub {{
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 400;
+  margin-top: 2px;
+}}
+
+/* Visual frame: DNI rectangle */
+.gld-doc-frame {{
+  position: relative;
+  aspect-ratio: 1.585;
+  border: 1px dashed var(--border-strong);
+  border-radius: 12px;
+  background: var(--accent-soft);
+  margin: 0 auto 22px;
+  max-width: 320px;
+}}
+.gld-corner {{
+  position: absolute;
+  width: 18px; height: 18px;
+  border: 3px solid var(--accent);
+}}
+.gld-corner.tl {{ top: 8px; left: 8px; border-right: none; border-bottom: none; border-radius: 4px 0 0 0; }}
+.gld-corner.tr {{ top: 8px; right: 8px; border-left: none; border-bottom: none; border-radius: 0 4px 0 0; }}
+.gld-corner.bl {{ bottom: 8px; left: 8px; border-right: none; border-top: none; border-radius: 0 0 0 4px; }}
+.gld-corner.br {{ bottom: 8px; right: 8px; border-left: none; border-top: none; border-radius: 0 0 4px 0; }}
+.gld-frame-label {{
+  position: absolute;
+  bottom: -10px; left: 50%; transform: translateX(-50%);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--bg);
+  padding: 2px 10px;
+  border-radius: 4px;
+  font-weight: 600;
+  white-space: nowrap;
+}}
+
+/* Visual frame: selfie oval */
+.gld-face-frame {{
+  width: 140px;
+  height: 180px;
+  margin: 6px auto 28px;
+  display: block;
+  border: 2px dashed var(--accent);
+  border-radius: 50%;
+  background: var(--accent-soft);
+  position: relative;
+}}
+.gld-face-frame::after {{
+  content: "Centra tu rostro";
+  position: absolute;
+  bottom: -22px; left: 50%; transform: translateX(-50%);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+  white-space: nowrap;
+}}
+
+/* Checklist with custom checkbox icon */
+.gld-checklist {{
+  list-style: none;
+  padding: 0;
+  margin: 14px 0;
+  font-size: 13px;
+  color: var(--text);
+  display: grid;
+  gap: 6px;
+}}
+.gld-checklist li {{
+  position: relative;
+  padding: 4px 0 4px 24px;
+  line-height: 1.35;
+}}
+.gld-checklist li::before {{
+  content: "";
+  position: absolute;
+  left: 0; top: 7px;
+  width: 14px; height: 14px;
+  border-radius: 4px;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+}}
+.gld-checklist li::after {{
+  content: "";
+  position: absolute;
+  left: 4px; top: 10px;
+  width: 6px; height: 3px;
+  border-left: 2px solid var(--accent);
+  border-bottom: 2px solid var(--accent);
+  transform: rotate(-45deg);
+}}
+
+/* Progress bar */
+.gld-progress {{
+  margin: 0 0 14px;
+}}
+.gld-progress-bar {{
+  height: 4px;
+  background: var(--surface-2);
+  border-radius: 2px;
+  overflow: hidden;
+}}
+.gld-progress-bar > div {{
+  height: 100%;
+  background: var(--accent);
+  transition: width .25s ease;
+}}
+.gld-progress-label {{
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 6px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 600;
+}}
+
 /* Capture card */
 .gld-card {{
   background: var(--surface);
@@ -459,36 +605,91 @@ def render_brand_header() -> None:
     )
 
 
+def _render_mobile_progress(doc_ready: bool, selfie_ready: bool) -> None:
+    done = sum([doc_ready, selfie_ready])
+    pct = int(done / 2 * 100)
+    st.markdown(
+        f"""
+        <div class="gld-progress">
+          <div class="gld-progress-bar"><div style="width:{pct}%"></div></div>
+          <div class="gld-progress-label">{done} de 2 capturas listas</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _render_step_header(num: int, title: str, subtitle: str) -> None:
+    st.markdown(
+        f"""
+        <div class="gld-mstep">
+          <div class="gld-mstep-num">{num}</div>
+          <div>
+            <h3>{title}</h3>
+            <span class="gld-mstep-sub">{subtitle}</span>
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _render_doc_frame() -> None:
+    st.markdown(
+        """
+        <div class="gld-doc-frame">
+          <span class="gld-corner tl"></span>
+          <span class="gld-corner tr"></span>
+          <span class="gld-corner bl"></span>
+          <span class="gld-corner br"></span>
+          <span class="gld-frame-label">Encuadrar el DNI completo</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _render_face_frame() -> None:
+    st.markdown('<div class="gld-face-frame"></div>', unsafe_allow_html=True)
+
+
+def _render_checklist(items: list[str]) -> None:
+    lis = "".join(f"<li>{item}</li>" for item in items)
+    st.markdown(f'<ul class="gld-checklist">{lis}</ul>', unsafe_allow_html=True)
+
+
 def render_mobile_capture(sid: str) -> None:
     state = read_state(sid)
     if state is None:
         st.error("Sesión inválida o expirada. Pide al desktop que genere un QR nuevo.")
         return
 
-    st.markdown(
-        '<div class="gld-step">Captura desde tu teléfono</div>',
-        unsafe_allow_html=True,
-    )
-
     doc_ready = state.get("document") == "ready"
     selfie_ready = state.get("selfie") == "ready"
 
-    progress = []
-    progress.append("DNI " + ("OK" if doc_ready else "pendiente"))
-    progress.append("Selfie " + ("OK" if selfie_ready else "pendiente"))
-    st.caption(" · ".join(progress))
+    _render_mobile_progress(doc_ready, selfie_ready)
 
     if not doc_ready:
-        st.markdown('<div class="gld-card"><h3>Paso 1 de 2 · DNI (frente)</h3>', unsafe_allow_html=True)
-        st.caption(
-            "Buena luz, sin reflejos, las 4 esquinas visibles. Apoya el documento sobre superficie oscura."
+        _render_step_header(
+            1,
+            "Foto del DNI",
+            "Sostén el celular horizontal y llena el cuadro con el documento.",
         )
-        photo = st.camera_input("Toma una foto del DNI", key="m_doc_cam")
-        upload = st.file_uploader(
-            "O sube desde galería",
-            type=UPLOAD_TYPES,
-            key="m_doc_upl",
-        )
+        _render_doc_frame()
+        _render_checklist([
+            "Lugar bien iluminado, sin contraluz",
+            "Sin reflejos sobre la mica del DNI",
+            "Las 4 esquinas dentro del marco",
+            "Texto y foto se leen claramente",
+        ])
+        photo = st.camera_input("Tomar foto del DNI", key="m_doc_cam")
+        with st.expander("O subir desde galería"):
+            upload = st.file_uploader(
+                "Subir desde galería",
+                type=UPLOAD_TYPES,
+                key="m_doc_upl",
+                label_visibility="collapsed",
+            )
         chosen = photo or upload
         if chosen is not None:
             try:
@@ -497,20 +698,30 @@ def render_mobile_capture(sid: str) -> None:
                 st.error(str(exc))
                 return
             save_image(sid, "document", normalized)
-            st.success("DNI recibido. Sigue con la selfie.")
             st.rerun()
-        st.markdown("</div>", unsafe_allow_html=True)
         return
 
     if not selfie_ready:
-        st.markdown('<div class="gld-card"><h3>Paso 2 de 2 · Selfie</h3>', unsafe_allow_html=True)
-        st.caption("Mira a cámara con rostro centrado. Sin gorra, sin lentes oscuros, buena luz frontal.")
-        photo = st.camera_input("Toma una selfie", key="m_self_cam")
-        upload = st.file_uploader(
-            "O sube desde galería",
-            type=UPLOAD_TYPES,
-            key="m_self_upl",
+        _render_step_header(
+            2,
+            "Selfie de tu rostro",
+            "Mira directo a la cámara y centra tu cara en el cuadro.",
         )
+        _render_face_frame()
+        _render_checklist([
+            "Buena luz frontal, no a contraluz",
+            "Sin gorra ni lentes oscuros",
+            "Rostro completo, ojos abiertos",
+            "Expresión neutral, mira a la cámara",
+        ])
+        photo = st.camera_input("Tomar selfie", key="m_self_cam")
+        with st.expander("O subir desde galería"):
+            upload = st.file_uploader(
+                "Subir desde galería",
+                type=UPLOAD_TYPES,
+                key="m_self_upl",
+                label_visibility="collapsed",
+            )
         chosen = photo or upload
         if chosen is not None:
             try:
@@ -519,12 +730,10 @@ def render_mobile_capture(sid: str) -> None:
                 st.error(str(exc))
                 return
             save_image(sid, "selfie", normalized)
-            st.success("Selfie recibida.")
             st.rerun()
         if st.button("Volver a tomar el DNI", key="m_redo_doc"):
             reset_kind(sid, "document")
             st.rerun()
-        st.markdown("</div>", unsafe_allow_html=True)
         return
 
     st.markdown(
