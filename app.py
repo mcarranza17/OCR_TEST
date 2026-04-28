@@ -592,7 +592,7 @@ def render_qr_handoff() -> tuple[bytes | None, bytes | None]:
         if doc_ready:
             doc_bytes = read_image(sid, "document")
             if doc_bytes:
-                st.image(doc_bytes, use_container_width=True)
+                st.image(doc_bytes, use_column_width=True)
         else:
             st.caption("Pendiente — captura desde el telefono.")
         st.markdown("</div>", unsafe_allow_html=True)
@@ -601,7 +601,7 @@ def render_qr_handoff() -> tuple[bytes | None, bytes | None]:
         if selfie_ready:
             selfie_bytes = read_image(sid, "selfie")
             if selfie_bytes:
-                st.image(selfie_bytes, use_container_width=True)
+                st.image(selfie_bytes, use_column_width=True)
         else:
             st.caption("Pendiente — captura desde el telefono.")
         st.markdown("</div>", unsafe_allow_html=True)
@@ -813,7 +813,7 @@ def main() -> None:
                 st.image(
                     _read_image_bytes(document_file),
                     caption="DNI cargado",
-                    use_container_width=True,
+                    use_column_width=True,
                 )
             except ValueError as exc:
                 st.error(str(exc))
@@ -835,7 +835,7 @@ def main() -> None:
                 st.image(
                     _read_image_bytes(selfie_file),
                     caption="Selfie cargada",
-                    use_container_width=True,
+                    use_column_width=True,
                 )
             except ValueError as exc:
                 st.error(str(exc))
