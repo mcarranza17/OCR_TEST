@@ -918,7 +918,9 @@ def _run_pipeline(
             ocr_result = run_ocr_with(ocr_instance, doc_bytes)
         except OCRError as exc:
             progress.empty()
-            st.error(str(exc))
+            msg = str(exc)
+            if msg:
+                st.error(msg)
             return
 
         progress.progress(55, text="Extrayendo campos…")

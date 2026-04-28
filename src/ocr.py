@@ -46,11 +46,35 @@ def get_paddle_ocr(lang: str = "es"):
 def run_ocr_with(ocr_instance, image_bytes: bytes) -> OCRResult:
     image = image_bytes_to_bgr(image_bytes)
 
-    # paddleocr 3.x exposes `.predict()`; 2.x only has `.ocr()`.
-    if hasattr(ocr_instance, "predict"):
-        raw_result = ocr_instance.predict(image)
-    else:
-        raw_result = ocr_instance.ocr(image)
+    def _call(img):
+        # paddleocr 3.x exposes `.predict()`; 2.x only has `.ocr()`.
+        if hasattr(ocr_instance, "predict"):
+            return ocr_instance.predict(img)
+        return ocr_instance.ocr(img)
+
+    # Paddle's MKL-DNN sometimes throws "could not execute a primitive" on
+    # specific tensor shapes. We try the original and a few rescaled copies
+    # silently so the user never sees the failure.
+    import cv2
+
+    h, w = image.shape[:2]
+    candidates = [
+        image,
+        cv2.resize(image, (max(2, int(w * 0.95)), max(2, int(h * 0.95)))),
+        cv2.resize(image, (max(2, int(w * 1.05)), max(2, int(h * 1.05)))),
+        cv2.resize(image, (max(2, int(w * 0.85)), max(2, int(h * 0.85)))),
+    ]
+
+    raw_result = None
+    for candidate in candidates:
+        try:
+            raw_result = _call(candidate)
+            break
+        except RuntimeError:
+            continue
+
+    if raw_result is None:
+        raise OCRError("") from None
 
     lines = _extract_lines(raw_result)
     if not lines:
