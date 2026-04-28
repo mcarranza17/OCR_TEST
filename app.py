@@ -725,19 +725,7 @@ def main() -> None:
         layout="wide",
     )
 
-    if "dark_mode" not in st.session_state:
-        st.session_state["dark_mode"] = False
-
-    # Theme toggle (top right)
-    _, theme_col = st.columns([8, 1])
-    with theme_col:
-        st.session_state["dark_mode"] = st.toggle(
-            "Oscuro",
-            value=st.session_state["dark_mode"],
-            key="dark_toggle",
-        )
-
-    st.markdown(build_css(st.session_state["dark_mode"]), unsafe_allow_html=True)
+    st.markdown(build_css(False), unsafe_allow_html=True)
 
     # Mobile route: short branded header, no sidebar params.
     qp = st.query_params
